@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  
-<title>nexora GX</title>
+  <title>nexora GX</title>
 </head>
 
 <body>
@@ -16,11 +15,9 @@
 <script>
 setInterval(()=>{
   let d = new Date();
-  document.getElementById("clock").innerHTML =
-    d.toLocaleTimeString();
+  document.getElementById("clock").textContent = d.toLocaleTimeString();
 },1000);
 </script>
-
 
 <input id="url"
 style="background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:6px;width:220px;outline:none;"
@@ -35,13 +32,20 @@ Ir
 <script>
 function ir(){
   let v = document.getElementById("url").value.trim();
+  if (!v) return;
 
   // detecta URL
   let ehURL = v.includes(".") && !v.includes(" ");
 
   if(ehURL){
-    if(!v.startsWith("http")) v = "https://" + v;
-    location.href = v;
+    if(!/^https?:\/\//i.test(v)) v = "https://" + v;
+    try {
+      const url = new URL(v);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return;
+      location.href = url.href;
+    } catch {
+      location.href = "https://www.google.com/search?q=" + encodeURIComponent(v);
+    }
   } else {
     // qualquer outra coisa → Google
     location.href = "https://www.google.com/search?q=" + encodeURIComponent(v);
@@ -51,7 +55,7 @@ function ir(){
 
 <h5>temos também o chat do nexora GX!<br>
 (fiz no base 44 pois não sei programar chats)</h5>
-<a href="https://hungry-nexora-connect-hub.base44.app" class="hacker-btn" target="_blank">
+<a href="https://hungry-nexora-connect-hub.base44.app" class="hacker-btn" target="_blank" rel="noopener noreferrer">
   chat do nexora GX
 </a>
 
@@ -84,7 +88,6 @@ body {
   color: #0f0;
 }
 
-/* empurra pra direita */
 .wrapper {
   display: flex;
   justify-content: flex-end;
@@ -185,11 +188,75 @@ function add(v) {
 }
 
 function calc() {
+  const expression = display.value;
+
+  // Apenas expressões matemáticas simples: números, ponto e operadores.
+  if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+    display.value = "ERR";
+    return;
+  }
+
   try {
-    display.value = eval(display.value);
+    // eval removido: evita execução arbitrária de JavaScript.
+    const result = safeCalculate(expression);
+    display.value = Number.isFinite(result) ? String(result) : "ERR";
   } catch {
     display.value = "ERR";
   }
+}
+
+function safeCalculate(expression) {
+  const tokens = expression.match(/\d+(?:\.\d+)?|[+\-*/()]/g);
+  if (!tokens || tokens.join("") !== expression.replace(/\s+/g, "")) {
+    throw new Error("Expressão inválida");
+  }
+
+  let index = 0;
+
+  function parseExpression() {
+    let value = parseTerm();
+    while (tokens[index] === "+" || tokens[index] === "-") {
+      const operator = tokens[index++];
+      const right = parseTerm();
+      value = operator === "+" ? value + right : value - right;
+    }
+    return value;
+  }
+
+  function parseTerm() {
+    let value = parseFactor();
+    while (tokens[index] === "*" || tokens[index] === "/") {
+      const operator = tokens[index++];
+      const right = parseFactor();
+      if (operator === "/" && right === 0) throw new Error("Divisão por zero");
+      value = operator === "*" ? value * right : value / right;
+    }
+    return value;
+  }
+
+  function parseFactor() {
+    if (tokens[index] === "(") {
+      index++;
+      const value = parseExpression();
+      if (tokens[index++] !== ")") throw new Error("Parênteses inválidos");
+      return value;
+    }
+
+    if (tokens[index] === "-") {
+      index++;
+      return -parseFactor();
+    }
+
+    const token = tokens[index++];
+    if (!token || !/^\d+(?:\.\d+)?$/.test(token)) {
+      throw new Error("Número inválido");
+    }
+    return Number(token);
+  }
+
+  const result = parseExpression();
+  if (index !== tokens.length) throw new Error("Expressão inválida");
+  return result;
 }
 
 function clearAll() {
