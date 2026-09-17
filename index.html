@@ -1,272 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>nexora GX</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexora GX</title>
+<style>
+body{background:#0f0f0f;color:#0f0;font-family:monospace;margin:20px}button,input,select,textarea{background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px}button{cursor:pointer}button:hover{background:#0f0;color:#000}.ai{margin-top:28px;border:1px solid #0f0;padding:16px;max-width:760px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.provider{min-width:130px}.provider.active{background:#0f0;color:#000}.chat{min-height:130px;white-space:pre-wrap;border:1px solid #063;margin:12px 0;padding:12px;color:#9f9}.status{font-size:12px;color:#7f7}
+</style>
 </head>
-
 <body>
-
-<h1>Nexora GX</h1>
-<p>Bem vindo ao nexora GX!</p>
-<h6>version 1.2.2</h6>
-<h4 id="clock"></h4>
-
-<script>
-setInterval(()=>{
-  let d = new Date();
-  document.getElementById("clock").textContent = d.toLocaleTimeString();
-},1000);
-</script>
-
-<input id="url"
-style="background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:6px;width:220px;outline:none;"
-placeholder="url ou pesquisa..."
-onkeydown="if(event.key==='Enter') ir()">
-
-<button onclick="ir()"
-style="background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:6px;">
-Ir
-</button>
+<h1>Nexora GX</h1><p>Bem vindo ao Nexora GX!</p><h6>version 1.2.2</h6><h4 id="clock"></h4>
+<input id="url" placeholder="url ou pesquisa..." onkeydown="if(event.key==='Enter') ir()"><button onclick="ir()">Ir</button>
+<h3>Nexora AI</h3>
+<section class="ai">
+<div><b>Escolha sua IA:</b></div>
+<div class="row" id="providers"></div>
+<div class="row"><label>Modelo: <select id="model"></select></label></div>
+<div class="status" id="status">Configure uma chave de API no ambiente do Nexora para usar um provedor.</div>
+<textarea id="prompt" rows="5" style="width:100%;box-sizing:border-box" placeholder="Digite sua pergunta..."></textarea>
+<div class="row"><button onclick="askAI()">Enviar para a IA</button><button onclick="clearChat()">Limpar</button></div>
+<div id="chat" class="chat">Nexora AI aguardando...</div>
+</section>
 
 <script>
-function ir(){
-  let v = document.getElementById("url").value.trim();
-  if (!v) return;
+setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString(),1000);
+function ir(){let v=document.getElementById('url').value.trim();if(!v)return;let u=v.includes('.')&&!v.includes(' ');if(u){if(!/^https?:\/\//i.test(v))v='https://'+v;try{let x=new URL(v);if(!/^https?:$/.test(x.protocol))return;location.href=x.href}catch{location.href='https://www.google.com/search?q='+encodeURIComponent(v)}}else location.href='https://www.google.com/search?q='+encodeURIComponent(v)}
 
-  // detecta URL
-  let ehURL = v.includes(".") && !v.includes(" ");
+const providers={
+ openai:{name:'OpenAI',models:['gpt-5','gpt-5-mini']},
+ anthropic:{name:'Claude',models:['claude-sonnet-4-5','claude-haiku-4-5']},
+ gemini:{name:'Gemini',models:['gemini-2.5-flash','gemini-2.5-pro']},
+ grok:{name:'Grok',models:['grok-4','grok-4-fast']}
+};
+let selected='openai';
+const providerBox=document.getElementById('providers');const modelBox=document.getElementById('model');
+for(const [id,p] of Object.entries(providers)){const b=document.createElement('button');b.className='provider';b.textContent=p.name;b.onclick=()=>selectProvider(id);b.dataset.id=id;providerBox.appendChild(b)}
+function selectProvider(id){selected=id;document.querySelectorAll('.provider').forEach(b=>b.classList.toggle('active',b.dataset.id===id));modelBox.innerHTML=providers[id].models.map(m=>`<option value="${m}">${m}</option>`).join('');document.getElementById('status').textContent='Provedor selecionado: '+providers[id].name}
+selectProvider('openai');
 
-  if(ehURL){
-    if(!/^https?:\/\//i.test(v)) v = "https://" + v;
-    try {
-      const url = new URL(v);
-      if (url.protocol !== "http:" && url.protocol !== "https:") return;
-      location.href = url.href;
-    } catch {
-      location.href = "https://www.google.com/search?q=" + encodeURIComponent(v);
-    }
-  } else {
-    // qualquer outra coisa → Google
-    location.href = "https://www.google.com/search?q=" + encodeURIComponent(v);
-  }
-}
+async function askAI(){const prompt=document.getElementById('prompt').value.trim();if(!prompt)return;const chat=document.getElementById('chat');chat.textContent='Nexora AI: processando...';try{const response=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:selected,model:modelBox.value,prompt})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Erro na API');chat.textContent=data.text||'Sem resposta.'}catch(e){chat.textContent='Erro: '+e.message+'\n\nO frontend está pronto, mas o endpoint /api/ai precisa estar conectado a um backend seguro com as chaves de API.'}}
+function clearChat(){document.getElementById('chat').textContent='Nexora AI aguardando...';document.getElementById('prompt').value=''}
 </script>
-
-<h5>temos também o chat do nexora GX!<br>
-(fiz no base 44 pois não sei programar chats)</h5>
-<a href="https://hungry-nexora-connect-hub.base44.app" class="hacker-btn" target="_blank" rel="noopener noreferrer">
-  chat do nexora GX
-</a>
-
-<style>
-  .hacker-btn {
-    display: inline-block;
-
-    padding: 12px 18px;
-    color: #00ff88;
-    font-family: monospace;
-    text-decoration: none;
-    border: 1px solid #00ff88;
-    background: transparent;
-    letter-spacing: 2px;
-    transition: 0.2s;
-    box-shadow: 0 0 8px #00ff88;
-  }
-
-  .hacker-btn:hover {
-    background: #00ff88;
-    color: black;
-    box-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88;
-    transform: scale(1.05);
-  }
-</style>
-<style>
-body {
-  background: #0f0f0f;
-  font-family: monospace;
-  color: #0f0;
-}
-
-.wrapper {
-  display: flex;
-  justify-content: flex-end;
-  padding: 20px;
-}
-
-.calc {
-  width: 180px;
-  background: #111;
-  padding: 10px;
-  border: 1px solid #0f0;
-  border-radius: 6px;
-}
-
-#display {
-  width: 100%;
-  height: 30px;
-  margin-bottom: 8px;
-  background: black;
-  border: 1px solid #0f0;
-  color: #0f0;
-  text-align: right;
-  font-family: monospace;
-}
-
-.buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-}
-
-button {
-  background: black;
-  border: 1px solid #0f0;
-  color: #0f0;
-  padding: 6px;
-  cursor: pointer;
-  font-family: monospace;
-}
-
-button:hover {
-  background: #0f0;
-  color: black;
-}
-
-.equal {
-  grid-column: span 2;
-}
-
-.ac {
-  grid-column: span 2;
-  border-color: red;
-  color: red;
-}
-
-.back {
-  grid-column: span 2;
-}
-</style>
-
-<div class="wrapper">
-  <div class="calc">
-    <input id="display" disabled>
-
-    <div class="buttons">
-      <button onclick="add('7')">7</button>
-      <button onclick="add('8')">8</button>
-      <button onclick="add('9')">9</button>
-      <button onclick="add('/')">/</button>
-
-      <button onclick="add('4')">4</button>
-      <button onclick="add('5')">5</button>
-      <button onclick="add('6')">6</button>
-      <button onclick="add('*')">*</button>
-
-      <button onclick="add('1')">1</button>
-      <button onclick="add('2')">2</button>
-      <button onclick="add('3')">3</button>
-      <button onclick="add('-')">-</button>
-
-      <button onclick="add('0')">0</button>
-      <button onclick="add('.')">.</button>
-
-      <button onclick="calc()" class="equal">=</button>
-      <button onclick="add('+')">+</button>
-
-      <button onclick="backspace()" class="back">⌫</button>
-      <button onclick="clearAll()" class="ac">AC</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let display = document.getElementById("display");
-
-function add(v) {
-  display.value += v;
-}
-
-function calc() {
-  const expression = display.value;
-
-  // Apenas expressões matemáticas simples: números, ponto e operadores.
-  if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
-    display.value = "ERR";
-    return;
-  }
-
-  try {
-    // eval removido: evita execução arbitrária de JavaScript.
-    const result = safeCalculate(expression);
-    display.value = Number.isFinite(result) ? String(result) : "ERR";
-  } catch {
-    display.value = "ERR";
-  }
-}
-
-function safeCalculate(expression) {
-  const tokens = expression.match(/\d+(?:\.\d+)?|[+\-*/()]/g);
-  if (!tokens || tokens.join("") !== expression.replace(/\s+/g, "")) {
-    throw new Error("Expressão inválida");
-  }
-
-  let index = 0;
-
-  function parseExpression() {
-    let value = parseTerm();
-    while (tokens[index] === "+" || tokens[index] === "-") {
-      const operator = tokens[index++];
-      const right = parseTerm();
-      value = operator === "+" ? value + right : value - right;
-    }
-    return value;
-  }
-
-  function parseTerm() {
-    let value = parseFactor();
-    while (tokens[index] === "*" || tokens[index] === "/") {
-      const operator = tokens[index++];
-      const right = parseFactor();
-      if (operator === "/" && right === 0) throw new Error("Divisão por zero");
-      value = operator === "*" ? value * right : value / right;
-    }
-    return value;
-  }
-
-  function parseFactor() {
-    if (tokens[index] === "(") {
-      index++;
-      const value = parseExpression();
-      if (tokens[index++] !== ")") throw new Error("Parênteses inválidos");
-      return value;
-    }
-
-    if (tokens[index] === "-") {
-      index++;
-      return -parseFactor();
-    }
-
-    const token = tokens[index++];
-    if (!token || !/^\d+(?:\.\d+)?$/.test(token)) {
-      throw new Error("Número inválido");
-    }
-    return Number(token);
-  }
-
-  const result = parseExpression();
-  if (index !== tokens.length) throw new Error("Expressão inválida");
-  return result;
-}
-
-function clearAll() {
-  display.value = "";
-}
-
-function backspace() {
-  display.value = display.value.slice(0, -1);
-}
-</script>
-
 </body>
 </html>
