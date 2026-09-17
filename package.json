@@ -1,0 +1,31 @@
+{
+  "name": "nexora-gx",
+  "version": "1.2.2",
+  "description": "Nexora GX - navegador poderoso e anônimo.",
+  "main": "main.js",
+  "author": "kairos804",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.netwaves.nexora-gx",
+    "productName": "Nexora GX",
+    "files": [
+      "index.html",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "Nexora-GX-Setup-${version}-${arch}.exe"
+    }
+  }
+}
