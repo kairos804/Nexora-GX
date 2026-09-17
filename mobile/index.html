@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050805">
+<title>Nexora GX Mobile</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#050805;color:#39ff66;font-family:monospace}body{padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}main{max-width:700px;margin:auto;padding:18px 0 28px}header{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #164d24;padding-bottom:12px}h1{font-size:22px;margin:0}#clock{font-size:12px;color:#8cff9e}.tag{font-size:11px;color:#7fff91;margin:10px 0 18px}.search{display:flex;gap:8px}.search input{min-width:0;flex:1}input,select,textarea,button{font:inherit;background:#020402;color:#39ff66;border:1px solid #16802e;border-radius:10px;padding:12px}button{font-weight:bold}button:active,.provider.active{background:#39ff66;color:#001b06}.ai{margin-top:18px;border:1px solid #16802e;border-radius:14px;padding:14px;background:#071007}.providers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.provider{width:100%;min-height:48px}.model{width:100%;margin-bottom:10px}.status{font-size:11px;color:#8cff9e;min-height:30px;margin:8px 2px}.prompt{width:100%;resize:vertical;min-height:110px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.chat{margin-top:12px;min-height:120px;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #164d24;border-radius:10px;padding:12px;color:#b6ffc2;background:#020502}.hint{font-size:11px;color:#5f9f6a;margin-top:16px;line-height:1.5}@media(min-width:600px){main{padding-top:28px}.providers{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Nexora GX</h1><span id="clock"></span></header>
+<div class="tag">MOBILE WEB • v1.2.2</div>
+<div class="search"><input id="url" inputmode="url" autocomplete="off" placeholder="URL ou pesquisa..."><button onclick="ir()">Ir</button></div>
+<section class="ai">
+<h2 style="font-size:18px;margin:0">Nexora AI</h2>
+<div style="font-size:12px;margin-top:4px">Escolha sua IA:</div>
+<div class="providers" id="providers"></div>
+<select class="model" id="model"></select>
+<div class="status" id="status">Selecione um provedor.</div>
+<textarea class="prompt" id="prompt" placeholder="Digite sua pergunta..."></textarea>
+<div class="actions"><button onclick="askAI()">Enviar</button><button onclick="clearChat()">Limpar</button></div>
+<div id="chat" class="chat">Nexora AI aguardando...</div>
+</section>
+<div class="hint">Esta versão é uma página web: pode ser hospedada em um site ou aberta localmente como arquivo HTML. A IA usa /api/ai quando houver um backend conectado.</div>
+</main>
+<script>
+setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString(),1000);document.getElementById('clock').textContent=new Date().toLocaleTimeString();
+function ir(){let v=document.getElementById('url').value.trim();if(!v)return;let u=v.includes('.')&&!v.includes(' ');if(u){if(!/^https?:\/\//i.test(v))v='https://'+v;try{let x=new URL(v);if(!/^https?:$/.test(x.protocol))return;location.href=x.href}catch{location.href='https://www.google.com/search?q='+encodeURIComponent(v)}}else location.href='https://www.google.com/search?q='+encodeURIComponent(v)}
+const providers={openai:{name:'OpenAI',models:['gpt-5','gpt-5-mini']},anthropic:{name:'Claude',models:['claude-sonnet-4-5','claude-haiku-4-5']},gemini:{name:'Gemini',models:['gemini-2.5-flash','gemini-2.5-pro']},grok:{name:'Grok',models:['grok-4','grok-4-fast']}};let selected='openai';const providerBox=document.getElementById('providers'),modelBox=document.getElementById('model');for(const[id,p]of Object.entries(providers)){const b=document.createElement('button');b.className='provider';b.textContent=p.name;b.dataset.id=id;b.onclick=()=>selectProvider(id);providerBox.appendChild(b)}function selectProvider(id){selected=id;document.querySelectorAll('.provider').forEach(b=>b.classList.toggle('active',b.dataset.id===id));modelBox.innerHTML=providers[id].models.map(m=>`<option value="${m}">${m}</option>`).join('');document.getElementById('status').textContent='Provedor selecionado: '+providers[id].name}selectProvider('openai');
+async function askAI(){const prompt=document.getElementById('prompt').value.trim();if(!prompt)return;const chat=document.getElementById('chat');chat.textContent='Nexora AI: processando...';try{const response=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:selected,model:modelBox.value,prompt})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Erro na API');chat.textContent=data.text||'Sem resposta.'}catch(e){chat.textContent='Erro: '+e.message+'\n\nConecte um backend seguro em /api/ai para ativar as respostas da IA.'}}function clearChat(){document.getElementById('chat').textContent='Nexora AI aguardando...';document.getElementById('prompt').value=''}
+</script>
+</body>
+</html>
