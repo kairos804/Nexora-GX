@@ -6,7 +6,7 @@
 2. Entre na execução mais recente de **Build Nexora GX for Windows** que terminou com sucesso.
 3. Na seção **Artifacts**, baixe o ZIP **Nexora-GX-Windows-...**.
 4. Extraia o ZIP.
-5. Execute o arquivo **Nexora-GX-Setup-1.2.4-x64.exe** para instalar o navegador ou **Nexora-GX-Portable-1.2.4-x64.exe** para abrir sem instalação.
+5. Execute **Nexora-GX-Setup-1.2.4-x64.exe** para instalar o navegador ou **Nexora-GX-Portable-1.2.4-x64.exe** para abrir sem instalação.
 
 O GitHub Actions gera os executáveis para Windows x64 automaticamente quando há push em `main` ou `feature/gemini-integration`, em pull requests para `main` e também por execução manual. Os artefatos ficam disponíveis por 14 dias.
 
@@ -25,6 +25,4 @@ Os executáveis ficam na pasta `dist/`:
 - `Nexora-GX-Setup-1.2.4-x64.exe`: instalador NSIS, com escolha da pasta e criação de atalhos.
 - `Nexora-GX-Portable-1.2.4-x64.exe`: versão portátil, sem instalação.
 
-## Nexora AI
-
-A Nexora AI está integrada ao aplicativo. Na primeira utilização, abra **Configurar IA** e adicione uma chave pessoal do Gemini. A chave é criptografada localmente pelo Electron SafeStorage. Não coloque chaves no GitHub nem compartilhe-as.
+Esta versão do Nexora GX é somente navegador e não inclui recursos de inteligência artificial.
