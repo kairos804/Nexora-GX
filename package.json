@@ -1,6 +1,6 @@
 {
   "name": "nexora-gx",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Nexora GX - navegador poderoso e anônimo.",
   "main": "main.js",
   "author": "kairos804",
@@ -19,6 +19,7 @@
     "files": [
       "index.html",
       "main.js",
+      "preload.js",
       "package.json"
     ],
     "win": {
