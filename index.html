@@ -5,46 +5,108 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nexora GX</title>
 <style>
-body{background:#0f0f0f;color:#0f0;font-family:monospace;margin:20px}button,input,select,textarea{background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px}button{cursor:pointer}button:hover{background:#0f0;color:#000}.ai{margin-top:28px;border:1px solid #0f0;padding:16px;max-width:760px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.provider{min-width:130px}.provider.active{background:#0f0;color:#000}.chat{min-height:130px;white-space:pre-wrap;border:1px solid #063;margin:12px 0;padding:12px;color:#9f9}.status{font-size:12px;color:#7f7}
+:root{color-scheme:dark}*{box-sizing:border-box}body{background:#0b0d0c;color:#b8ffca;font-family:Arial,sans-serif;margin:0;padding:24px}h1,h2,h3{color:#39ff72}button,input,select,textarea{background:#101713;color:#caffd5;border:1px solid #1b9d4a;border-radius:8px;padding:10px;font:inherit}button{cursor:pointer}button:hover{background:#39ff72;color:#061008}.top{max-width:980px;margin:auto}.bar,.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.bar input{flex:1;min-width:220px}.panel{margin-top:22px;border:1px solid #176b37;border-radius:14px;padding:18px;background:#0e1511;max-width:980px}.muted,.status{color:#8cbd9b;font-size:13px}.status{margin:10px 0}.chat{min-height:150px;max-height:420px;overflow:auto;white-space:pre-wrap;border:1px solid #164b2a;border-radius:10px;margin:14px 0;padding:14px;color:#d5ffe0;line-height:1.5}.prompt{width:100%;resize:vertical}.hidden{display:none!important}.danger{border-color:#a34b4b;color:#ffbaba}.brand{color:#39ff72;font-weight:bold}.small{font-size:12px}
 </style>
 </head>
 <body>
-<h1>Nexora GX</h1><p>Bem vindo ao Nexora GX!</p><h6>version 1.2.3</h6><h4 id="clock"></h4>
-<input id="url" placeholder="url ou pesquisa..." onkeydown="if(event.key==='Enter') ir()"><button onclick="ir()">Ir</button>
-<h3>Nexora AI</h3>
-<section class="ai">
-<div><b>Provedor:</b> Gemini</div>
-<div class="row"><label>Modelo: <select id="model"><option value="gemini-2.5-flash">Gemini 2.5 Flash (rápido)</option><option value="gemini-2.5-pro">Gemini 2.5 Pro (avançado)</option></select></label></div>
-<div class="status" id="status">Gemini conectado ao processo seguro do Nexora. Configure GEMINI_API_KEY no ambiente do Windows.</div>
-<textarea id="prompt" rows="5" style="width:100%;box-sizing:border-box" placeholder="Digite sua pergunta..."></textarea>
-<div class="row"><button onclick="askAI()">Enviar para a IA</button><button onclick="clearChat()">Limpar</button></div>
-<div id="chat" class="chat">Nexora AI aguardando...</div>
-</section>
+<main class="top">
+  <h1>Nexora GX</h1>
+  <p class="muted">Seu navegador. Seu ritmo. Sua navegação.</p>
+  <h3 id="clock"></h3>
+  <div class="bar">
+    <input id="url" placeholder="Digite um endereço ou pesquise..." onkeydown="if(event.key==='Enter') ir()">
+    <button onclick="ir()">Ir</button>
+  </div>
 
+  <section class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2>Nexora AI</h2><span class="brand">GEMINI</span>
+    </div>
+    <p class="muted">Converse com o Gemini direto no Nexora GX.</p>
+    <div class="row">
+      <label>Modelo
+        <select id="model">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash — rápido</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro — avançado</option>
+        </select>
+      </label>
+      <button onclick="toggleSettings()">Configurar IA</button>
+    </div>
+    <div id="status" class="status">Verificando configuração...</div>
+
+    <div id="settings" class="panel hidden" style="margin:12px 0;padding:14px">
+      <h3>Conectar o Gemini</h3>
+      <p class="muted">Cole sua chave da API do Gemini uma única vez. Ela será criptografada e guardada neste computador — nunca será enviada ao repositório do Nexora.</p>
+      <input id="apiKey" type="password" autocomplete="off" placeholder="Cole sua chave da API do Gemini" style="width:100%">
+      <div class="row" style="margin-top:10px">
+        <button onclick="saveKey()">Salvar chave com segurança</button>
+        <button class="danger" onclick="removeKey()">Remover chave salva</button>
+      </div>
+      <p class="muted small">A chave é pessoal e pode ter limites ou custos conforme as regras da sua conta Google. Não compartilhe sua chave.</p>
+    </div>
+
+    <textarea id="prompt" class="prompt" rows="4" placeholder="Pergunte alguma coisa para a Nexora AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askAI()}"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="send" onclick="askAI()">Enviar</button>
+      <button onclick="clearChat()">Limpar conversa</button>
+    </div>
+    <div id="chat" class="chat">Nexora AI pronta. Configure o Gemini para começar.</div>
+  </section>
+  <p class="muted small">Nexora GX · Net Waves</p>
+</main>
 <script>
-setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString(),1000);
-function ir(){let v=document.getElementById('url').value.trim();if(!v)return;let u=v.includes('.')&&!v.includes(' ');if(u){if(!/^https?:\/\//i.test(v))v='https://'+v;try{let x=new URL(v);if(!/^https?:$/.test(x.protocol))return;location.href=x.href}catch{location.href='https://www.google.com/search?q='+encodeURIComponent(v)}}else location.href='https://www.google.com/search?q='+encodeURIComponent(v)}
+const $ = id => document.getElementById(id);
+setInterval(() => $('clock').textContent = new Date().toLocaleTimeString(), 1000);
+$('clock').textContent = new Date().toLocaleTimeString();
 
-const modelBox=document.getElementById('model');
-
-async function askAI(){
- const prompt=document.getElementById('prompt').value.trim();
- if(!prompt)return;
- const chat=document.getElementById('chat');
- const sendButton=document.querySelector('button[onclick="askAI()"]');
- chat.textContent='Nexora AI: conectando ao Gemini...';
- if(sendButton)sendButton.disabled=true;
- try{
-  if(!window.nexoraAI||typeof window.nexoraAI.ask!=='function')throw new Error('Ponte segura do Electron não encontrada. Feche e abra o Nexora GX novamente.');
-  const data=await window.nexoraAI.ask({model:modelBox.value,prompt});
-  chat.textContent=data.text||'O Gemini não retornou texto.';
- }catch(e){
-  chat.textContent='Erro: '+(e.message||'Não foi possível falar com o Gemini.');
- }finally{
-  if(sendButton)sendButton.disabled=false;
- }
+function ir() {
+  let value = $('url').value.trim();
+  if (!value) return;
+  const looksLikeUrl = value.includes('.') && !value.includes(' ');
+  if (looksLikeUrl) {
+    if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+    try { const parsed = new URL(value); if (/^https?:$/.test(parsed.protocol)) location.href = parsed.href; }
+    catch { location.href = 'https://www.google.com/search?q=' + encodeURIComponent(value); }
+  } else location.href = 'https://www.google.com/search?q=' + encodeURIComponent(value);
 }
-function clearChat(){document.getElementById('chat').textContent='Nexora AI aguardando...';document.getElementById('prompt').value=''}
+
+async function refreshStatus() {
+  try {
+    const state = await window.nexoraAI.status();
+    if (state.configured) $('status').textContent = 'Gemini configurado neste computador. Pode conversar!';
+    else $('status').textContent = state.error || (state.secureStorage ? 'Gemini ainda não configurado. Abra “Configurar IA” para conectar.' : 'Armazenamento seguro indisponível neste computador.');
+  } catch (error) { $('status').textContent = 'Não foi possível verificar a configuração: ' + error.message; }
+}
+function toggleSettings() { $('settings').classList.toggle('hidden'); }
+async function saveKey() {
+  const key = $('apiKey').value.trim();
+  if (!key) { $('status').textContent = 'Cole sua chave antes de salvar.'; return; }
+  try {
+    await window.nexoraAI.saveKey(key);
+    $('apiKey').value = '';
+    $('settings').classList.add('hidden');
+    $('status').textContent = 'Chave salva e protegida neste computador. Nexora AI conectada!';
+  } catch (error) { $('status').textContent = 'Não foi possível salvar: ' + error.message; }
+}
+async function removeKey() {
+  try { await window.nexoraAI.removeKey(); $('status').textContent = 'Chave removida deste computador.'; }
+  catch (error) { $('status').textContent = 'Erro ao remover: ' + error.message; }
+}
+async function askAI() {
+  const prompt = $('prompt').value.trim();
+  if (!prompt) return;
+  $('send').disabled = true;
+  $('chat').textContent = 'Nexora AI está pensando...';
+  try {
+    const result = await window.nexoraAI.ask({ model: $('model').value, prompt });
+    $('chat').textContent = result.text || 'O Gemini não retornou texto.';
+  } catch (error) {
+    $('chat').textContent = 'Erro: ' + (error.message || 'Não foi possível conectar ao Gemini.');
+    if ((error.message || '').includes('Configure sua chave')) $('settings').classList.remove('hidden');
+  } finally { $('send').disabled = false; }
+}
+function clearChat() { $('chat').textContent = 'Nexora AI pronta.'; $('prompt').value = ''; }
+refreshStatus();
 </script>
 </body>
 </html>
