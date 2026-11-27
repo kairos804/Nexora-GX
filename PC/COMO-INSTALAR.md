@@ -1,14 +1,14 @@
 # Nexora GX — Versão para PC
 
-## Baixar o instalador pronto
+## Baixar os executáveis prontos
 
 1. Abra a aba **Actions** do repositório no GitHub.
 2. Entre na execução mais recente de **Build Nexora GX for Windows** que terminou com sucesso.
-3. Na seção **Artifacts**, baixe **Nexora-GX-Windows-...**.
-4. Extraia o ZIP baixado.
-5. Execute `Nexora-GX-1.2.4-x64-nsis.exe` para instalar ou o executável `portable` para abrir sem instalação.
+3. Na seção **Artifacts**, baixe o ZIP **Nexora-GX-Windows-...**.
+4. Extraia o ZIP.
+5. Execute o arquivo **Nexora-GX-Setup-1.2.4-x64.exe** para instalar o navegador ou **Nexora-GX-Portable-1.2.4-x64.exe** para abrir sem instalação.
 
-O GitHub Actions gera os executáveis Windows automaticamente em pushes para `main` e `feature/gemini-integration`, em pull requests para `main` e também quando a execução é iniciada manualmente. O resultado fica disponível como artefato por 14 dias.
+O GitHub Actions gera os executáveis para Windows x64 automaticamente quando há push em `main` ou `feature/gemini-integration`, em pull requests para `main` e também por execução manual. Os artefatos ficam disponíveis por 14 dias.
 
 ## Gerar localmente no Windows
 
@@ -21,10 +21,10 @@ npm install
 npm run build:win
 ```
 
-Os arquivos `.exe` serão gerados na pasta `dist/`:
-- Instalador NSIS: permite escolher a pasta de instalação e cria atalhos.
-- Versão portable: executável sem instalador.
+Os executáveis ficam na pasta `dist/`:
+- `Nexora-GX-Setup-1.2.4-x64.exe`: instalador NSIS, com escolha da pasta e criação de atalhos.
+- `Nexora-GX-Portable-1.2.4-x64.exe`: versão portátil, sem instalação.
 
 ## Nexora AI
 
-A integração com Gemini está no aplicativo. Cada usuário deve adicionar sua própria chave em **Nexora AI → Configurar IA**. A chave fica armazenada localmente com a proteção do Electron SafeStorage; não coloque chaves no GitHub nem compartilhe-as.
+A Nexora AI está integrada ao aplicativo. Na primeira utilização, abra **Configurar IA** e adicione uma chave pessoal do Gemini. A chave é criptografada localmente pelo Electron SafeStorage. Não coloque chaves no GitHub nem compartilhe-as.
