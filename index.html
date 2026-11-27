@@ -2,44 +2,99 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexora GX</title>
 <style>
-body{background:#0f0f0f;color:#0f0;font-family:monospace;margin:20px}button,input,select,textarea{background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px}button{cursor:pointer}button:hover{background:#0f0;color:#000}.ai{margin-top:28px;border:1px solid #0f0;padding:16px;max-width:760px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.provider{min-width:130px}.provider.active{background:#0f0;color:#000}.chat{min-height:130px;white-space:pre-wrap;border:1px solid #063;margin:12px 0;padding:12px;color:#9f9}.status{font-size:12px;color:#7f7}
+*{box-sizing:border-box}body{margin:0;padding:0;background:#0d0d0d;color:#0f0;font-family:monospace}
+.tabbar{display:flex;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid #0f0;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #0a0;background:#000;color:#0a0;font-size:12px;cursor:pointer;white-space:nowrap}
+.tab.active{border-color:#0f0;color:#0f0}.tab .x{opacity:.7}.tab .x:hover{opacity:1;color:#f00}
+.newtab{border:1px solid #0f0;background:#000;color:#0f0;padding:5px 10px;cursor:pointer;font-family:monospace}.newtab:hover{background:#0f0;color:#000}
+.anon{margin-left:auto;font-size:11px;color:#0a0;padding:4px 8px;white-space:nowrap}
+.addrbar{display:flex;gap:8px;padding:10px;border-bottom:1px solid #0a0}
+#url{flex:1;background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px;outline:none}
+button{background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px 14px;cursor:pointer}button:hover{background:#0f0;color:#000}
+.content{padding:20px;min-height:60vh}#clock{font-size:20px;margin:10px 0 20px}
+.shortcuts{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.shortcut{border:1px solid #0a0;padding:8px 12px;font-size:12px;cursor:pointer;color:#0a0}.shortcut:hover{border-color:#0f0;color:#0f0}
+.hacker-btn{display:inline-block;padding:10px 16px;color:#0f0;text-decoration:none;border:1px solid #0f0;font-family:monospace}.hacker-btn:hover{background:#0f0;color:#000}
+.result{border-bottom:1px dashed #0a0;padding:10px 0}.result a.title{color:#0f0;font-size:14px;text-decoration:none}.result a.title:hover{text-decoration:underline}
+.result .desc{color:#0a0;font-size:12px;margin:4px 0}.result .actions{display:flex;gap:8px;margin-top:4px}.result .actions button,.result .actions a{font-size:11px;padding:4px 8px}
+.siteview{display:flex;flex-direction:column;gap:8px}iframe{width:100%;height:65vh;border:1px solid #0a0;background:#fff}.fallback{font-size:12px;color:#0a0}.fallback a{color:#0f0}
+.calc-toggle{margin-top:30px;font-size:12px}.calc{margin-top:10px;width:180px;padding:10px;border:1px solid #0f0;display:none}.calc.open{display:block}
+#display{width:100%;height:30px;margin-bottom:8px;background:#000;border:1px solid #0f0;color:#0f0;text-align:right;font-family:monospace}
+.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.equal{grid-column:span 2}.ac{grid-column:span 2;border-color:#f00;color:#f00}.ac:hover{background:#f00;color:#000}.back{grid-column:span 2}
+.mobile .addrbar{flex-direction:column}.mobile #url{width:100%}.mobile iframe{height:50vh}.mobile .calc{width:100%}
 </style>
 </head>
 <body>
-<h1>Nexora GX</h1><p>Bem vindo ao Nexora GX!</p><h6>version 1.2.2</h6><h4 id="clock"></h4>
-<input id="url" placeholder="url ou pesquisa..." onkeydown="if(event.key==='Enter') ir()"><button onclick="ir()">Ir</button>
-<h3>Nexora AI</h3>
-<section class="ai">
-<div><b>Escolha sua IA:</b></div>
-<div class="row" id="providers"></div>
-<div class="row"><label>Modelo: <select id="model"></select></label></div>
-<div class="status" id="status">Configure uma chave de API no ambiente do Nexora para usar um provedor.</div>
-<textarea id="prompt" rows="5" style="width:100%;box-sizing:border-box" placeholder="Digite sua pergunta..."></textarea>
-<div class="row"><button onclick="askAI()">Enviar para a IA</button><button onclick="clearChat()">Limpar</button></div>
-<div id="chat" class="chat">Nexora AI aguardando...</div>
-</section>
-
+<div class="tabbar" id="tabbar"></div>
+<div class="addrbar">
+<input id="url" placeholder="url ou pesquisa..." onkeydown="if(event.key==='Enter') ir()">
+<button onclick="ir()">Ir</button>
+</div>
+<div class="content" id="content"></div>
 <script>
-setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString(),1000);
-function ir(){let v=document.getElementById('url').value.trim();if(!v)return;let u=v.includes('.')&&!v.includes(' ');if(u){if(!/^https?:\/\//i.test(v))v='https://'+v;try{let x=new URL(v);if(!/^https?:$/.test(x.protocol))return;location.href=x.href}catch{location.href='https://www.google.com/search?q='+encodeURIComponent(v)}}else location.href='https://www.google.com/search?q='+encodeURIComponent(v)}
-
-const providers={
- openai:{name:'OpenAI',models:['gpt-5','gpt-5-mini']},
- anthropic:{name:'Claude',models:['claude-sonnet-4-5','claude-haiku-4-5']},
- gemini:{name:'Gemini',models:['gemini-2.5-flash','gemini-2.5-pro']},
- grok:{name:'Grok',models:['grok-4','grok-4-fast']}
+let tabs=[],activeId=null,tabCounter=0;
+const SHORTCUTS={
+youtube:{url:'https://www.youtube.com',desc:'Vídeos e streaming'},
+google:{url:'https://www.google.com',desc:'Buscador'},
+github:{url:'https://github.com',desc:'Código e repositórios'},
+wikipedia:{url:'https://www.wikipedia.org',desc:'Enciclopédia livre'},
+twitter:{url:'https://twitter.com',desc:'Rede social'},
+x:{url:'https://x.com',desc:'Rede social'},
+reddit:{url:'https://reddit.com',desc:'Fóruns e comunidades'},
+netflix:{url:'https://netflix.com',desc:'Streaming de filmes e séries'},
+spotify:{url:'https://open.spotify.com',desc:'Streaming de música'},
+twitch:{url:'https://twitch.tv',desc:'Streaming ao vivo, games'},
+discord:{url:'https://discord.com',desc:'Chat e comunidades'},
+chatgpt:{url:'https://chat.openai.com',desc:'Assistente de IA'}
 };
-let selected='openai';
-const providerBox=document.getElementById('providers');const modelBox=document.getElementById('model');
-for(const [id,p] of Object.entries(providers)){const b=document.createElement('button');b.className='provider';b.textContent=p.name;b.onclick=()=>selectProvider(id);b.dataset.id=id;providerBox.appendChild(b)}
-function selectProvider(id){selected=id;document.querySelectorAll('.provider').forEach(b=>b.classList.toggle('active',b.dataset.id===id));modelBox.innerHTML=providers[id].models.map(m=>`<option value="${m}">${m}</option>`).join('');document.getElementById('status').textContent='Provedor selecionado: '+providers[id].name}
-selectProvider('openai');
-
-async function askAI(){const prompt=document.getElementById('prompt').value.trim();if(!prompt)return;const chat=document.getElementById('chat');chat.textContent='Nexora AI: processando...';try{const response=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:selected,model:modelBox.value,prompt})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Erro na API');chat.textContent=data.text||'Sem resposta.'}catch(e){chat.textContent='Erro: '+e.message+'\n\nO frontend está pronto, mas o endpoint /api/ai precisa estar conectado a um backend seguro com as chaves de API.'}}
-function clearChat(){document.getElementById('chat').textContent='Nexora AI aguardando...';document.getElementById('prompt').value=''}
+function novaAba(){tabCounter++;const tab={id:tabCounter,title:'nova aba',view:'home',urlValue:'',results:[],siteUrl:''};tabs.push(tab);activeId=tab.id;render()}
+function fecharAba(id,ev){ev.stopPropagation();tabs=tabs.filter(t=>t.id!==id);if(!tabs.length){novaAba();return}if(activeId===id)activeId=tabs[0].id;render()}
+function trocarAba(id){activeId=id;render()}
+function getTab(){return tabs.find(t=>t.id===activeId)}
+function ir(){
+const t=getTab(),v=document.getElementById('url').value.trim();if(!v)return;t.urlValue=v;
+const ehURL=v.includes('.')&&!v.includes(' ');
+if(ehURL){const url=/^https?:\/\//i.test(v)?v:'https://'+v;t.view='site';t.siteUrl=url;t.title=v.replace(/^https?:\/\//,'').slice(0,18)}
+else{t.view='results';t.title=v.slice(0,18);t.results=buscarLocal(v);if(!t.results.length)buscarWikipedia(v,t)}
+render()
+}
+function buscarLocal(q){const query=q.toLowerCase();return Object.keys(SHORTCUTS).filter(k=>k.includes(query)||query.includes(k)).map(k=>({title:k,url:SHORTCUTS[k].url,desc:SHORTCUTS[k].desc}))}
+async function buscarWikipedia(q,t){try{const res=await fetch('https://pt.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search='+encodeURIComponent(q));const data=await res.json(),titles=data[1]||[],descs=data[2]||[],links=data[3]||[];t.results=titles.map((title,i)=>({title,url:links[i],desc:descs[i]||''}));if(!t.results.length)t.results=[{title:'Sem resultados',url:'',desc:'Tente digitar direto uma url, ou outro termo.'}]}catch(e){t.results=[{title:'Não foi possível buscar',url:'',desc:'Sem conexão com a API de busca no momento.'}]}if(activeId===t.id)render()}
+function abrirEmNovaAba(url){window.open(url,'_blank')}
+function abrirComoSite(url,titulo){const t=getTab();t.view='site';t.siteUrl=url;t.title=(titulo||url).slice(0,18);t.urlValue=url;render()}
+function render(){renderTabbar();renderContent();document.getElementById('url').value=getTab().urlValue||''}
+function renderTabbar(){
+const bar=document.getElementById('tabbar');bar.innerHTML='';
+tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.id===activeId?' active':'');el.onclick=()=>trocarAba(t.id);el.innerHTML='<span></span><span class="x">x</span>';el.firstChild.textContent=t.title;el.lastChild.onclick=ev=>fecharAba(t.id,ev);bar.appendChild(el)});
+const plus=document.createElement('button');plus.className='newtab';plus.textContent='+';plus.onclick=novaAba;bar.appendChild(plus);
+const anon=document.createElement('span');anon.className='anon';anon.textContent='modo anônimo — nada é salvo';bar.appendChild(anon)
+}
+function renderContent(){
+const t=getTab(),c=document.getElementById('content');
+if(t.view==='home'){
+c.innerHTML=`<h1>Nexora GX</h1><div style="color:#0a0;font-size:12px;">version 1.3.0</div><p>Bem vindo ao Nexora GX!</p><h4 id="clock"></h4><div class="shortcuts">${Object.keys(SHORTCUTS).map(k=>'<div class="shortcut" data-shortcut="'+k+'">'+k+'</div>').join('')}</div><p style="font-size:14px;">Acesse seus sites favoritos pelo Nexora GX.</p><div class="calc-toggle"><button onclick="toggleCalc()">calculadora</button></div><div class="calc" id="calcBox"><input id="display" disabled><div class="buttons"><button onclick="add('7')">7</button><button onclick="add('8')">8</button><button onclick="add('9')">9</button><button onclick="add('/')">/</button><button onclick="add('4')">4</button><button onclick="add('5')">5</button><button onclick="add('6')">6</button><button onclick="add('*')">*</button><button onclick="add('1')">1</button><button onclick="add('2')">2</button><button onclick="add('3')">3</button><button onclick="add('-')">-</button><button onclick="add('0')">0</button><button onclick="add('.')">.</button><button onclick="calc()" class="equal">=</button><button onclick="add('+')">+</button><button onclick="backspace()" class="back">⌫</button><button onclick="clearAll()" class="ac">AC</button></div></div>`;
+c.querySelectorAll('[data-shortcut]').forEach(el=>el.onclick=()=>abrirComoSite(SHORTCUTS[el.dataset.shortcut].url,el.dataset.shortcut));tickClock()
+}else if(t.view==='results'){
+c.innerHTML='<div style="margin-bottom:14px;color:#0a0;font-size:12px;">resultados para "'+escapeHTML(t.title)+'" — busca interna, sem Google</div>'+t.results.map(r=>'<div class="result"><a class="title" href="#" data-url="'+escapeAttr(r.url)+'" data-title="'+escapeAttr(r.title)+'">'+escapeHTML(r.title)+'</a><div class="desc">'+escapeHTML(r.desc)+'</div>'+(r.url?'<div class="actions"><button data-open="'+escapeAttr(r.url)+'" data-title="'+escapeAttr(r.title)+'">abrir aqui</button><button data-new="'+escapeAttr(r.url)+'">nova aba real</button></div>':'')+'</div>').join('')||'<div style="color:#0a0;font-size:12px;">buscando...</div>';
+c.querySelectorAll('[data-url]').forEach(el=>el.onclick=ev=>{ev.preventDefault();abrirComoSite(el.dataset.url,el.dataset.title)});c.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>abrirComoSite(el.dataset.open,el.dataset.title));c.querySelectorAll('[data-new]').forEach(el=>el.onclick=()=>abrirEmNovaAba(el.dataset.new))
+}else if(t.view==='site'){
+c.innerHTML='<div class="siteview"><div class="fallback">carregando '+escapeHTML(t.siteUrl)+' — se não aparecer aqui embaixo, o site bloqueia incorporação: <a id="external" target="_blank" rel="noopener">abrir em nova aba real</a></div><iframe id="siteframe"></iframe></div>';c.querySelector('#external').href=t.siteUrl;c.querySelector('#siteframe').src=t.siteUrl
+}
+}
+function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function escapeAttr(v){return escapeHTML(v)}
+function tickClock(){const el=document.getElementById('clock');if(el)el.textContent=new Date().toLocaleTimeString()}
+setInterval(tickClock,1000);
+function toggleCalc(){document.getElementById('calcBox').classList.toggle('open')}
+const ALLOWED=/^[0-9+\-*/.]*$/;
+function add(v){const d=document.getElementById('display');if(ALLOWED.test(d.value+v))d.value+=v}
+function calc(){const d=document.getElementById('display');if(!ALLOWED.test(d.value)){d.value='ERR';return}try{d.value=Function('"use strict";return ('+d.value+')')()}catch{d.value='ERR'}}
+function clearAll(){document.getElementById('display').value=''}
+function backspace(){const d=document.getElementById('display');d.value=d.value.slice(0,-1)}
+function aplicarDispositivo(){const isMobile=window.matchMedia('(max-width: 700px)').matches||(('ontouchstart'in window)&&navigator.maxTouchPoints>0);document.body.classList.toggle('mobile',isMobile);document.body.classList.toggle('desktop',!isMobile)}
+window.addEventListener('resize',aplicarDispositivo);aplicarDispositivo();novaAba();
 </script>
 </body>
 </html>
