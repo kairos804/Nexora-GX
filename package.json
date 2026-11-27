@@ -31,13 +31,17 @@
         "nsis",
         "portable"
       ],
-      "artifactName": "Nexora-GX-${version}-${arch}-${target}.${ext}"
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "artifactName": "Nexora-GX-Setup-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Nexora-GX-Portable-${version}-${arch}.${ext}"
     }
   }
 }
