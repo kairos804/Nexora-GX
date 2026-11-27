@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win --x64"
+    "build": "electron-builder --win --x64 --publish never",
+    "build:win": "electron-builder --win --x64 --publish never"
   },
   "devDependencies": {
     "electron": "^38.0.0",
@@ -16,10 +17,27 @@
   "build": {
     "appId": "com.netwaves.nexora-gx",
     "productName": "Nexora GX",
-    "files": ["index.html", "main.js", "preload.js", "package.json"],
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
     "win": {
-      "target": ["nsis"],
-      "artifactName": "Nexora-GX-Setup-${version}-${arch}.exe"
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "Nexora-GX-${version}-${arch}-${target}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
