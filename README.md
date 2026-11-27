@@ -1,49 +1,42 @@
 # Nexora GX
 
-Um navegador poderoso anônimo.
+Um navegador poderoso e anônimo.
 
-**Versão 1.2.3**
+**Versão 1.2.4**
 
 ## Inclui
-- Pesquisa integrada
-- Relógio em tempo real
-- Chat Nexora AI com Gemini
-- Modelos Gemini 2.5 Flash e Gemini 2.5 Pro
-- Aplicativo desktop com Electron
-- Chromium via Electron
-- Build para Windows (`.exe`) com Electron Builder
+- Pesquisa integrada e relógio em tempo real
+- Nexora AI integrada ao Gemini
+- Seleção entre Gemini 2.5 Flash e Gemini 2.5 Pro
+- Configuração da chave dentro do próprio navegador
+- Armazenamento local criptografado da chave usando Electron SafeStorage
+- Aplicativo desktop com Electron e build para Windows
 
-## Configurar o Gemini
+## Conectar a Nexora AI
 
-O Nexora lê a chave no processo principal do Electron pela variável de ambiente `GEMINI_API_KEY`. A chave não deve ser colocada no HTML, no preload ou no GitHub.
+1. Crie uma chave pessoal no Google AI Studio.
+2. Abra o Nexora GX.
+3. Clique em **Configurar IA**.
+4. Cole a chave no campo e escolha **Salvar chave com segurança**.
+5. Depois disso, basta abrir a Nexora AI e conversar. A configuração fica salva neste computador.
 
-**PowerShell (somente na sessão atual):**
+A chave é criptografada com o armazenamento seguro do sistema operacional e fica na pasta de dados local do aplicativo. Ela não é incluída no HTML, no preload, no repositório nem no instalador. Cada pessoa deve usar sua própria chave; o uso da API pode estar sujeito aos limites e preços definidos pelo Google.
 
-```powershell
-$env:GEMINI_API_KEY="SUA_CHAVE_NOVA"
-npm start
-```
-
-**Prompt de Comando (somente na janela atual):**
-
-```bat
-set GEMINI_API_KEY=SUA_CHAVE_NOVA
-npm start
-```
-
-Crie uma chave nova no Google AI Studio. Não reutilize uma chave que tenha sido compartilhada em chat ou commit. Não envie a chave para o GitHub.
+Nunca compartilhe sua chave. Se ela for exposta, revogue-a e gere outra.
 
 ## Rodar no PC
+
+Instale uma versão LTS do Node.js e execute:
 
 ```bash
 npm install
 npm start
 ```
 
-## Gerar instalador `.exe`
+## Gerar instalador Windows
 
 ```bash
 npm run build:win
 ```
 
-O instalador Windows será gerado na pasta `dist/`. Quem usar o aplicativo precisará configurar sua própria variável `GEMINI_API_KEY`; a chave não é embutida no instalador.
+O instalador será gerado em `dist/`.
