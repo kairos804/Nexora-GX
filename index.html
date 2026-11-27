@@ -2,111 +2,99 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexora GX</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{background:#0b0d0c;color:#b8ffca;font-family:Arial,sans-serif;margin:0;padding:24px}h1,h2,h3{color:#39ff72}button,input,select,textarea{background:#101713;color:#caffd5;border:1px solid #1b9d4a;border-radius:8px;padding:10px;font:inherit}button{cursor:pointer}button:hover{background:#39ff72;color:#061008}.top{max-width:980px;margin:auto}.bar,.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.bar input{flex:1;min-width:220px}.panel{margin-top:22px;border:1px solid #176b37;border-radius:14px;padding:18px;background:#0e1511;max-width:980px}.muted,.status{color:#8cbd9b;font-size:13px}.status{margin:10px 0}.chat{min-height:150px;max-height:420px;overflow:auto;white-space:pre-wrap;border:1px solid #164b2a;border-radius:10px;margin:14px 0;padding:14px;color:#d5ffe0;line-height:1.5}.prompt{width:100%;resize:vertical}.hidden{display:none!important}.danger{border-color:#a34b4b;color:#ffbaba}.brand{color:#39ff72;font-weight:bold}.small{font-size:12px}
+*{box-sizing:border-box}body{margin:0;padding:0;background:#0d0d0d;color:#0f0;font-family:monospace}
+.tabbar{display:flex;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid #0f0;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #0a0;background:#000;color:#0a0;font-size:12px;cursor:pointer;white-space:nowrap}
+.tab.active{border-color:#0f0;color:#0f0}.tab .x{opacity:.7}.tab .x:hover{opacity:1;color:#f00}
+.newtab{border:1px solid #0f0;background:#000;color:#0f0;padding:5px 10px;cursor:pointer;font-family:monospace}.newtab:hover{background:#0f0;color:#000}
+.anon{margin-left:auto;font-size:11px;color:#0a0;padding:4px 8px;white-space:nowrap}
+.addrbar{display:flex;gap:8px;padding:10px;border-bottom:1px solid #0a0}
+#url{flex:1;background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px;outline:none}
+button{background:#000;color:#0f0;border:1px solid #0f0;font-family:monospace;padding:8px 14px;cursor:pointer}button:hover{background:#0f0;color:#000}
+.content{padding:20px;min-height:60vh}#clock{font-size:20px;margin:10px 0 20px}
+.shortcuts{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.shortcut{border:1px solid #0a0;padding:8px 12px;font-size:12px;cursor:pointer;color:#0a0}.shortcut:hover{border-color:#0f0;color:#0f0}
+.hacker-btn{display:inline-block;padding:10px 16px;color:#0f0;text-decoration:none;border:1px solid #0f0;font-family:monospace}.hacker-btn:hover{background:#0f0;color:#000}
+.result{border-bottom:1px dashed #0a0;padding:10px 0}.result a.title{color:#0f0;font-size:14px;text-decoration:none}.result a.title:hover{text-decoration:underline}
+.result .desc{color:#0a0;font-size:12px;margin:4px 0}.result .actions{display:flex;gap:8px;margin-top:4px}.result .actions button,.result .actions a{font-size:11px;padding:4px 8px}
+.siteview{display:flex;flex-direction:column;gap:8px}iframe{width:100%;height:65vh;border:1px solid #0a0;background:#fff}.fallback{font-size:12px;color:#0a0}.fallback a{color:#0f0}
+.calc-toggle{margin-top:30px;font-size:12px}.calc{margin-top:10px;width:180px;padding:10px;border:1px solid #0f0;display:none}.calc.open{display:block}
+#display{width:100%;height:30px;margin-bottom:8px;background:#000;border:1px solid #0f0;color:#0f0;text-align:right;font-family:monospace}
+.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.equal{grid-column:span 2}.ac{grid-column:span 2;border-color:#f00;color:#f00}.ac:hover{background:#f00;color:#000}.back{grid-column:span 2}
+.mobile .addrbar{flex-direction:column}.mobile #url{width:100%}.mobile iframe{height:50vh}.mobile .calc{width:100%}
 </style>
 </head>
 <body>
-<main class="top">
-  <h1>Nexora GX</h1>
-  <p class="muted">Seu navegador. Seu ritmo. Sua navegação.</p>
-  <h3 id="clock"></h3>
-  <div class="bar">
-    <input id="url" placeholder="Digite um endereço ou pesquise..." onkeydown="if(event.key==='Enter') ir()">
-    <button onclick="ir()">Ir</button>
-  </div>
-
-  <section class="panel">
-    <div class="row" style="justify-content:space-between">
-      <h2>Nexora AI</h2><span class="brand">GEMINI</span>
-    </div>
-    <p class="muted">Converse com o Gemini direto no Nexora GX.</p>
-    <div class="row">
-      <label>Modelo
-        <select id="model">
-          <option value="gemini-2.5-flash">Gemini 2.5 Flash — rápido</option>
-          <option value="gemini-2.5-pro">Gemini 2.5 Pro — avançado</option>
-        </select>
-      </label>
-      <button onclick="toggleSettings()">Configurar IA</button>
-    </div>
-    <div id="status" class="status">Verificando configuração...</div>
-
-    <div id="settings" class="panel hidden" style="margin:12px 0;padding:14px">
-      <h3>Conectar o Gemini</h3>
-      <p class="muted">Cole sua chave da API do Gemini uma única vez. Ela será criptografada e guardada neste computador — nunca será enviada ao repositório do Nexora.</p>
-      <input id="apiKey" type="password" autocomplete="off" placeholder="Cole sua chave da API do Gemini" style="width:100%">
-      <div class="row" style="margin-top:10px">
-        <button onclick="saveKey()">Salvar chave com segurança</button>
-        <button class="danger" onclick="removeKey()">Remover chave salva</button>
-      </div>
-      <p class="muted small">A chave é pessoal e pode ter limites ou custos conforme as regras da sua conta Google. Não compartilhe sua chave.</p>
-    </div>
-
-    <textarea id="prompt" class="prompt" rows="4" placeholder="Pergunte alguma coisa para a Nexora AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askAI()}"></textarea>
-    <div class="row" style="margin-top:10px">
-      <button id="send" onclick="askAI()">Enviar</button>
-      <button onclick="clearChat()">Limpar conversa</button>
-    </div>
-    <div id="chat" class="chat">Nexora AI pronta. Configure o Gemini para começar.</div>
-  </section>
-  <p class="muted small">Nexora GX · Net Waves</p>
-</main>
+<div class="tabbar" id="tabbar"></div>
+<div class="addrbar">
+<input id="url" placeholder="url ou pesquisa..." onkeydown="if(event.key==='Enter') ir()">
+<button onclick="ir()">Ir</button>
+</div>
+<div class="content" id="content"></div>
 <script>
-const $ = id => document.getElementById(id);
-setInterval(() => $('clock').textContent = new Date().toLocaleTimeString(), 1000);
-$('clock').textContent = new Date().toLocaleTimeString();
-
-function ir() {
-  let value = $('url').value.trim();
-  if (!value) return;
-  const looksLikeUrl = value.includes('.') && !value.includes(' ');
-  if (looksLikeUrl) {
-    if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
-    try { const parsed = new URL(value); if (/^https?:$/.test(parsed.protocol)) location.href = parsed.href; }
-    catch { location.href = 'https://www.google.com/search?q=' + encodeURIComponent(value); }
-  } else location.href = 'https://www.google.com/search?q=' + encodeURIComponent(value);
+let tabs=[],activeId=null,tabCounter=0;
+const SHORTCUTS={
+youtube:{url:'https://www.youtube.com',desc:'Vídeos e streaming'},
+google:{url:'https://www.google.com',desc:'Buscador'},
+github:{url:'https://github.com',desc:'Código e repositórios'},
+wikipedia:{url:'https://www.wikipedia.org',desc:'Enciclopédia livre'},
+twitter:{url:'https://twitter.com',desc:'Rede social'},
+x:{url:'https://x.com',desc:'Rede social'},
+reddit:{url:'https://reddit.com',desc:'Fóruns e comunidades'},
+netflix:{url:'https://netflix.com',desc:'Streaming de filmes e séries'},
+spotify:{url:'https://open.spotify.com',desc:'Streaming de música'},
+twitch:{url:'https://twitch.tv',desc:'Streaming ao vivo, games'},
+discord:{url:'https://discord.com',desc:'Chat e comunidades'},
+chatgpt:{url:'https://chat.openai.com',desc:'Assistente de IA'}
+};
+function novaAba(){tabCounter++;const tab={id:tabCounter,title:'nova aba',view:'home',urlValue:'',results:[],siteUrl:''};tabs.push(tab);activeId=tab.id;render()}
+function fecharAba(id,ev){ev.stopPropagation();tabs=tabs.filter(t=>t.id!==id);if(!tabs.length){novaAba();return}if(activeId===id)activeId=tabs[0].id;render()}
+function trocarAba(id){activeId=id;render()}
+function getTab(){return tabs.find(t=>t.id===activeId)}
+function ir(){
+const t=getTab(),v=document.getElementById('url').value.trim();if(!v)return;t.urlValue=v;
+const ehURL=v.includes('.')&&!v.includes(' ');
+if(ehURL){const url=/^https?:\/\//i.test(v)?v:'https://'+v;t.view='site';t.siteUrl=url;t.title=v.replace(/^https?:\/\//,'').slice(0,18)}
+else{t.view='results';t.title=v.slice(0,18);t.results=buscarLocal(v);if(!t.results.length)buscarWikipedia(v,t)}
+render()
 }
-
-async function refreshStatus() {
-  try {
-    const state = await window.nexoraAI.status();
-    if (state.configured) $('status').textContent = 'Gemini configurado neste computador. Pode conversar!';
-    else $('status').textContent = state.error || (state.secureStorage ? 'Gemini ainda não configurado. Abra “Configurar IA” para conectar.' : 'Armazenamento seguro indisponível neste computador.');
-  } catch (error) { $('status').textContent = 'Não foi possível verificar a configuração: ' + error.message; }
+function buscarLocal(q){const query=q.toLowerCase();return Object.keys(SHORTCUTS).filter(k=>k.includes(query)||query.includes(k)).map(k=>({title:k,url:SHORTCUTS[k].url,desc:SHORTCUTS[k].desc}))}
+async function buscarWikipedia(q,t){try{const res=await fetch('https://pt.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search='+encodeURIComponent(q));const data=await res.json(),titles=data[1]||[],descs=data[2]||[],links=data[3]||[];t.results=titles.map((title,i)=>({title,url:links[i],desc:descs[i]||''}));if(!t.results.length)t.results=[{title:'Sem resultados',url:'',desc:'Tente digitar direto uma url, ou outro termo.'}]}catch(e){t.results=[{title:'Não foi possível buscar',url:'',desc:'Sem conexão com a API de busca no momento.'}]}if(activeId===t.id)render()}
+function abrirEmNovaAba(url){window.open(url,'_blank')}
+function abrirComoSite(url,titulo){const t=getTab();t.view='site';t.siteUrl=url;t.title=(titulo||url).slice(0,18);t.urlValue=url;render()}
+function render(){renderTabbar();renderContent();document.getElementById('url').value=getTab().urlValue||''}
+function renderTabbar(){
+const bar=document.getElementById('tabbar');bar.innerHTML='';
+tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.id===activeId?' active':'');el.onclick=()=>trocarAba(t.id);el.innerHTML='<span></span><span class="x">x</span>';el.firstChild.textContent=t.title;el.lastChild.onclick=ev=>fecharAba(t.id,ev);bar.appendChild(el)});
+const plus=document.createElement('button');plus.className='newtab';plus.textContent='+';plus.onclick=novaAba;bar.appendChild(plus);
+const anon=document.createElement('span');anon.className='anon';anon.textContent='modo anônimo — nada é salvo';bar.appendChild(anon)
 }
-function toggleSettings() { $('settings').classList.toggle('hidden'); }
-async function saveKey() {
-  const key = $('apiKey').value.trim();
-  if (!key) { $('status').textContent = 'Cole sua chave antes de salvar.'; return; }
-  try {
-    await window.nexoraAI.saveKey(key);
-    $('apiKey').value = '';
-    $('settings').classList.add('hidden');
-    $('status').textContent = 'Chave salva e protegida neste computador. Nexora AI conectada!';
-  } catch (error) { $('status').textContent = 'Não foi possível salvar: ' + error.message; }
+function renderContent(){
+const t=getTab(),c=document.getElementById('content');
+if(t.view==='home'){
+c.innerHTML=`<h1>Nexora GX</h1><div style="color:#0a0;font-size:12px;">version 1.3.0</div><p>Bem vindo ao Nexora GX!</p><h4 id="clock"></h4><div class="shortcuts">${Object.keys(SHORTCUTS).map(k=>'<div class="shortcut" data-shortcut="'+k+'">'+k+'</div>').join('')}</div><p style="font-size:14px;">Acesse seus sites favoritos pelo Nexora GX.</p><div class="calc-toggle"><button onclick="toggleCalc()">calculadora</button></div><div class="calc" id="calcBox"><input id="display" disabled><div class="buttons"><button onclick="add('7')">7</button><button onclick="add('8')">8</button><button onclick="add('9')">9</button><button onclick="add('/')">/</button><button onclick="add('4')">4</button><button onclick="add('5')">5</button><button onclick="add('6')">6</button><button onclick="add('*')">*</button><button onclick="add('1')">1</button><button onclick="add('2')">2</button><button onclick="add('3')">3</button><button onclick="add('-')">-</button><button onclick="add('0')">0</button><button onclick="add('.')">.</button><button onclick="calc()" class="equal">=</button><button onclick="add('+')">+</button><button onclick="backspace()" class="back">⌫</button><button onclick="clearAll()" class="ac">AC</button></div></div>`;
+c.querySelectorAll('[data-shortcut]').forEach(el=>el.onclick=()=>abrirComoSite(SHORTCUTS[el.dataset.shortcut].url,el.dataset.shortcut));tickClock()
+}else if(t.view==='results'){
+c.innerHTML='<div style="margin-bottom:14px;color:#0a0;font-size:12px;">resultados para "'+escapeHTML(t.title)+'" — busca interna, sem Google</div>'+t.results.map(r=>'<div class="result"><a class="title" href="#" data-url="'+escapeAttr(r.url)+'" data-title="'+escapeAttr(r.title)+'">'+escapeHTML(r.title)+'</a><div class="desc">'+escapeHTML(r.desc)+'</div>'+(r.url?'<div class="actions"><button data-open="'+escapeAttr(r.url)+'" data-title="'+escapeAttr(r.title)+'">abrir aqui</button><button data-new="'+escapeAttr(r.url)+'">nova aba real</button></div>':'')+'</div>').join('')||'<div style="color:#0a0;font-size:12px;">buscando...</div>';
+c.querySelectorAll('[data-url]').forEach(el=>el.onclick=ev=>{ev.preventDefault();abrirComoSite(el.dataset.url,el.dataset.title)});c.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>abrirComoSite(el.dataset.open,el.dataset.title));c.querySelectorAll('[data-new]').forEach(el=>el.onclick=()=>abrirEmNovaAba(el.dataset.new))
+}else if(t.view==='site'){
+c.innerHTML='<div class="siteview"><div class="fallback">carregando '+escapeHTML(t.siteUrl)+' — se não aparecer aqui embaixo, o site bloqueia incorporação: <a id="external" target="_blank" rel="noopener">abrir em nova aba real</a></div><iframe id="siteframe"></iframe></div>';c.querySelector('#external').href=t.siteUrl;c.querySelector('#siteframe').src=t.siteUrl
 }
-async function removeKey() {
-  try { await window.nexoraAI.removeKey(); $('status').textContent = 'Chave removida deste computador.'; }
-  catch (error) { $('status').textContent = 'Erro ao remover: ' + error.message; }
 }
-async function askAI() {
-  const prompt = $('prompt').value.trim();
-  if (!prompt) return;
-  $('send').disabled = true;
-  $('chat').textContent = 'Nexora AI está pensando...';
-  try {
-    const result = await window.nexoraAI.ask({ model: $('model').value, prompt });
-    $('chat').textContent = result.text || 'O Gemini não retornou texto.';
-  } catch (error) {
-    $('chat').textContent = 'Erro: ' + (error.message || 'Não foi possível conectar ao Gemini.');
-    if ((error.message || '').includes('Configure sua chave')) $('settings').classList.remove('hidden');
-  } finally { $('send').disabled = false; }
-}
-function clearChat() { $('chat').textContent = 'Nexora AI pronta.'; $('prompt').value = ''; }
-refreshStatus();
+function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function escapeAttr(v){return escapeHTML(v)}
+function tickClock(){const el=document.getElementById('clock');if(el)el.textContent=new Date().toLocaleTimeString()}
+setInterval(tickClock,1000);
+function toggleCalc(){document.getElementById('calcBox').classList.toggle('open')}
+const ALLOWED=/^[0-9+\-*/.]*$/;
+function add(v){const d=document.getElementById('display');if(ALLOWED.test(d.value+v))d.value+=v}
+function calc(){const d=document.getElementById('display');if(!ALLOWED.test(d.value)){d.value='ERR';return}try{d.value=Function('"use strict";return ('+d.value+')')()}catch{d.value='ERR'}}
+function clearAll(){document.getElementById('display').value=''}
+function backspace(){const d=document.getElementById('display');d.value=d.value.slice(0,-1)}
+function aplicarDispositivo(){const isMobile=window.matchMedia('(max-width: 700px)').matches||(('ontouchstart'in window)&&navigator.maxTouchPoints>0);document.body.classList.toggle('mobile',isMobile);document.body.classList.toggle('desktop',!isMobile)}
+window.addEventListener('resize',aplicarDispositivo);aplicarDispositivo();novaAba();
 </script>
 </body>
 </html>
